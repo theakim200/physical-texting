@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Sensory Chat</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div id="chat-container">
+        <!-- 헤더 -->
+        <div id="chat-header">
+            <span id="room-name">Chat Room</span>
+            <span id="user-count">0 online</span>
+        </div>
+
+        <!-- 메시지 영역 -->
+        <div id="messages-container">
+            <!-- 메시지들이 여기에 추가됨 -->
+        </div>
+
+        <!-- 입력 영역 -->
+        <div id="input-container">
+            <div id="text-input" contenteditable="true" data-placeholder="Type a message"></div>
+            <button id="send-btn">Send</button>
+        </div>
+    </div>
+
+    <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
+    <script src="firebase.js"></script>
+    <script src="chat.js"></script>
+</body>
+</html>
