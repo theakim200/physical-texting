@@ -24,7 +24,7 @@ const messagesRef = roomRef.child('messages');
 const usersRef = roomRef.child('users');
 
 // 고유 사용자 ID 생성
-const oduserId = `user_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+const userId = `user_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
 
 // 사용자 입장 등록
 const userRef = usersRef.child(userId);
@@ -55,7 +55,7 @@ function displayMessage(message) {
     messageEl.className = 'message';
     
     // 내 메시지인지 확인
-    if (message.oduserId === oduserId) {
+    if (message.userId === userId) {
         messageEl.classList.add('mine');
     } else {
         messageEl.classList.add('others');
@@ -87,7 +87,7 @@ function sendMessage() {
     
     if (content && content !== '<br>') {
         const message = {
-            oduserId: oduserId,
+            userId: userId,
             userName: userName,
             content: content,
             timestamp: firebase.database.ServerValue.TIMESTAMP
