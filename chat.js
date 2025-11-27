@@ -16,6 +16,15 @@ const roomNameEl = document.getElementById('room-name');
 const userCountEl = document.getElementById('user-count');
 const sensorPermissionOverlay = document.getElementById('sensor-permission-overlay');
 const grantSensorButton = document.getElementById('grant-sensor-permission');
+const debugToggle = document.getElementById('debug-toggle');
+const debugPanel = document.getElementById('debug-panel');
+const debugGamma = document.getElementById('debug-gamma');
+const debugBeta = document.getElementById('debug-beta');
+const debugItalic = document.getElementById('debug-italic');
+const debugSpeed = document.getElementById('debug-speed');
+const debugWidth = document.getElementById('debug-width');
+const debugRadius = document.getElementById('debug-radius');
+const debugWeight = document.getElementById('debug-weight');
 
 // 센서 값 저장
 let currentItalicValue = 50; // 현재 italic 값 저장
@@ -24,9 +33,28 @@ let currentWeightValue = 60; // 현재 weight 값 저장 (기본 60)
 let lastInputTime = null; // 이전 입력 시간
 let currentTypingSpeed = 0; // 현재 타자 속도 (ms)
 let sensorPermissionGranted = false;
+let currentGamma = 0;
+let currentBeta = 0;
+let currentRadius = 0;
 
 // 방 이름 표시
 roomNameEl.textContent = `Room: ${roomId}`;
+
+// 디버그 패널 토글
+debugToggle.addEventListener('click', () => {
+    debugPanel.classList.toggle('hidden');
+});
+
+// 디버그 정보 업데이트 함수
+function updateDebugInfo() {
+    debugGamma.textContent = `${currentGamma.toFixed(1)}°`;
+    debugBeta.textContent = `${currentBeta.toFixed(1)}°`;
+    debugItalic.textContent = currentItalicValue.toFixed(1);
+    debugSpeed.textContent = `${currentTypingSpeed}ms`;
+    debugWidth.textContent = currentWidthValue.toFixed(1);
+    debugRadius.textContent = `${currentRadius.toFixed(1)}px`;
+    debugWeight.textContent = currentWeightValue.toFixed(1);
+}
 
 // 센서 권한 버튼 클릭
 grantSensorButton.addEventListener('click', async () => {
@@ -64,6 +92,9 @@ function handleOrientation(event) {
     const beta = event.beta;   // 앞뒤 기울기: -180 ~ 180
     
     if (gamma !== null && beta !== null) {
+        currentGamma = gamma;
+        currentBeta = beta;
+        
         // 화면이 뒤를 향하는지 확인하고 gamma 보정
         let correctedGamma = gamma;
         
@@ -78,6 +109,9 @@ function handleOrientation(event) {
         
         // 범위 제한
         currentItalicValue = Math.max(40, Math.min(60, italicValue));
+        
+        // 디버그 정보 업데이트
+        updateDebugInfo();
     }
 }
 
@@ -200,6 +234,7 @@ function handleKeyTouch(event) {
     const radiusX = touch.radiusX || 25;
     const radiusY = touch.radiusY || 25;
     const avgRadius = (radiusX + radiusY) / 2;
+    currentRadius = avgRadius;
     
     // radius를 weight로 매핑 (20px → 60, 50px → 150)
     if (avgRadius < 20) {
@@ -209,6 +244,9 @@ function handleKeyTouch(event) {
     } else {
         currentWeightValue = 60 + ((avgRadius - 20) / 30) * 90;
     }
+    
+    // 디버그 정보 업데이트
+    updateDebugInfo();
     
     // 키 처리
     if (keyValue === 'backspace') {
@@ -240,6 +278,7 @@ function insertCharacter(char) {
     }
     
     lastInputTime = currentTime;
+    currentTypingSpeed = typingInterval;
     
     // 타자 간격을 width 값으로 변환
     if (typingInterval === 0) {
@@ -251,6 +290,9 @@ function insertCharacter(char) {
     } else {
         currentWidthValue = 5 + ((typingInterval - 100) / 1100) * 80;
     }
+    
+    // 디버그 정보 업데이트
+    updateDebugInfo();
     
     // span 생성
     const span = document.createElement('span');
