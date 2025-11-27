@@ -19,7 +19,8 @@ const grantSensorButton = document.getElementById('grant-sensor-permission');
 
 // 센서 값 저장
 let currentItalicValue = 50; // 현재 italic 값 저장
-let currentWidthValue = 50; // 현재 width 값 저장
+let currentWidthValue = 45; // 현재 width 값 저장 (기본 45)
+let currentWeightValue = 60; // 현재 weight 값 저장 (기본 60)
 let lastInputTime = null; // 이전 입력 시간
 let currentTypingSpeed = 0; // 현재 타자 속도 (ms)
 let sensorPermissionGranted = false;
@@ -196,7 +197,7 @@ textInput.addEventListener('beforeinput', (event) => {
     // 타자 간격을 width 값으로 변환 (5-85 범위)
     if (typingInterval === 0) {
         // 첫 글자
-        currentWidthValue = 50;
+        currentWidthValue = 45;
     } else if (typingInterval < 100) {
         // 매우 빠름
         currentWidthValue = 5;
@@ -222,7 +223,7 @@ textInput.addEventListener('beforeinput', (event) => {
     for (let char of text) {
         const span = document.createElement('span');
         span.textContent = char;
-        span.style.fontVariationSettings = `'wght' 90, 'wdth' ${currentWidthValue}, 'ital' ${currentItalicValue}`;
+        span.style.fontVariationSettings = `'wght' ${currentWeightValue}, 'wdth' ${currentWidthValue}, 'ital' ${currentItalicValue}`;
         
         // span을 현재 위치에 삽입
         range.insertNode(span);
@@ -237,3 +238,113 @@ textInput.addEventListener('beforeinput', (event) => {
     selection.removeAllRanges();
     selection.addRange(range);
 });
+
+// 커스텀 키보드 기능
+let isShiftActive = false;
+
+// 모든 키에 터치 이벤트 추가
+document.querySelectorAll('.key').forEach(key => {
+    key.addEventListener('touchstart', handleKeyTouch);
+});
+
+function handleKeyTouch(event) {
+    event.preventDefault();
+    
+    const touch = event.touches[0];
+    const keyValue = event.target.dataset.key;
+    
+    // 터치 면적으로 압력 측정
+    const radiusX = touch.radiusX || 25;
+    const radiusY = touch.radiusY || 25;
+    const avgRadius = (radiusX + radiusY) / 2;
+    
+    // radius를 weight로 매핑 (20px → 60, 50px → 150)
+    if (avgRadius < 20) {
+        currentWeightValue = 60;
+    } else if (avgRadius > 50) {
+        currentWeightValue = 150;
+    } else {
+        currentWeightValue = 60 + ((avgRadius - 20) / 30) * 90;
+    }
+    
+    // 키 처리
+    if (keyValue === 'backspace') {
+        handleBackspace();
+    } else if (keyValue === 'enter') {
+        sendMessage();
+    } else if (keyValue === 'shift') {
+        isShiftActive = !isShiftActive;
+        event.target.classList.toggle('active', isShiftActive);
+    } else if (keyValue === 'space') {
+        insertCharacter(' ');
+    } else {
+        const char = isShiftActive ? keyValue.toUpperCase() : keyValue;
+        insertCharacter(char);
+        if (isShiftActive) {
+            isShiftActive = false;
+            document.querySelector('.key-shift').classList.remove('active');
+        }
+    }
+}
+
+function insertCharacter(char) {
+    // 타자 속도 측정
+    const currentTime = Date.now();
+    let typingInterval = 0;
+    
+    if (lastInputTime !== null) {
+        typingInterval = currentTime - lastInputTime;
+    }
+    
+    lastInputTime = currentTime;
+    
+    // 타자 간격을 width 값으로 변환
+    if (typingInterval === 0) {
+        currentWidthValue = 45;
+    } else if (typingInterval < 100) {
+        currentWidthValue = 5;
+    } else if (typingInterval > 1200) {
+        currentWidthValue = 85;
+    } else {
+        currentWidthValue = 5 + ((typingInterval - 100) / 1100) * 80;
+    }
+    
+    // 커서 위치에 글자 삽입
+    const selection = window.getSelection();
+    if (!selection.rangeCount) return;
+    
+    const range = selection.getRangeAt(0);
+    
+    const span = document.createElement('span');
+    span.textContent = char;
+    span.style.fontVariationSettings = `'wght' ${currentWeightValue}, 'wdth' ${currentWidthValue}, 'ital' ${currentItalicValue}`;
+    
+    range.deleteContents();
+    range.insertNode(span);
+    
+    // 커서를 삽입된 span 뒤로 이동
+    range.setStartAfter(span);
+    range.setEndAfter(span);
+    range.collapse(true);
+    selection.removeAllRanges();
+    selection.addRange(range);
+    
+    // 포커스 유지
+    textInput.focus();
+}
+
+function handleBackspace() {
+    const selection = window.getSelection();
+    if (!selection.rangeCount) return;
+    
+    const range = selection.getRangeAt(0);
+    
+    if (range.collapsed) {
+        // 커서만 있을 때 (선택 없음)
+        range.setStart(range.startContainer, Math.max(0, range.startOffset - 1));
+        range.deleteContents();
+    } else {
+        // 선택된 텍스트 삭제
+        range.deleteContents();
+    }
+}

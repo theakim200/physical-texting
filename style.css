@@ -151,7 +151,7 @@ body {
     padding: 10px 14px;
     border-radius: 18px;
     font-family: 'Sensory', sans-serif;
-    font-size: 16px;
+    font-size: 20px;
     line-height: 1.4;
 }
 
@@ -200,4 +200,61 @@ body {
     border-radius: 20px;
     font-size: 16px;
     cursor: pointer;
+}
+
+/* 커스텀 키보드 */
+#custom-keyboard {
+    background: #d1d5db;
+    padding: 8px;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+
+.keyboard-row {
+    display: flex;
+    justify-content: center;
+    gap: 4px;
+}
+
+.key {
+    flex: 1;
+    max-width: 36px;
+    height: 42px;
+    background: white;
+    border: none;
+    border-radius: 5px;
+    font-size: 18px;
+    cursor: pointer;
+    user-select: none;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 1px 0 rgba(0, 0, 0, 0.1);
+}
+
+.key:active {
+    background: #e5e5ea;
+    transform: scale(0.95);
+}
+
+.key-shift,
+.key-backspace {
+    max-width: 50px;
+}
+
+.key-space {
+    flex: 3;
+    max-width: 200px;
+}
+
+.key-enter {
+    max-width: 60px;
+    background: #007AFF;
+    color: white;
+}
+
+.key.active {
+    background: #007AFF;
+    color: white;
 }
