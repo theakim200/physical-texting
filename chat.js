@@ -165,80 +165,6 @@ function sendMessage() {
 // 전송 버튼 클릭
 sendBtn.addEventListener('click', sendMessage);
 
-// 엔터 키로 전송 (Shift+Enter는 줄바꿈)
-textInput.addEventListener('keypress', (e) => {
-    if (e.key === 'Enter' && !e.shiftKey) {
-        e.preventDefault();
-        sendMessage();
-    }
-});
-
-// beforeinput 이벤트로 타자 속도 측정 및 글자별 스타일 적용
-textInput.addEventListener('beforeinput', (event) => {
-    // 일반 텍스트 입력이 아니면 무시
-    if (event.inputType !== 'insertText' && event.inputType !== 'insertLineBreak') {
-        return;
-    }
-    
-    // 기본 동작 막기
-    event.preventDefault();
-    
-    // 타자 속도 측정
-    const currentTime = Date.now();
-    let typingInterval = 0;
-    
-    if (lastInputTime !== null) {
-        typingInterval = currentTime - lastInputTime;
-    }
-    
-    lastInputTime = currentTime;
-    currentTypingSpeed = typingInterval;
-    
-    // 타자 간격을 width 값으로 변환 (5-85 범위)
-    if (typingInterval === 0) {
-        // 첫 글자
-        currentWidthValue = 45;
-    } else if (typingInterval < 100) {
-        // 매우 빠름
-        currentWidthValue = 5;
-    } else if (typingInterval > 1200) {
-        // 매우 느림
-        currentWidthValue = 85;
-    } else {
-        // 100-1200ms 사이를 5-85로 선형 매핑
-        currentWidthValue = 5 + ((typingInterval - 100) / (1200 - 100)) * 80;
-    }
-    
-    // 입력될 텍스트 가져오기
-    const text = event.data || '\n';
-    
-    // 현재 선택 영역 가져오기
-    const selection = window.getSelection();
-    if (!selection.rangeCount) return;
-    
-    const range = selection.getRangeAt(0);
-    range.deleteContents();
-    
-    // 각 글자를 span으로 감싸서 생성
-    for (let char of text) {
-        const span = document.createElement('span');
-        span.textContent = char;
-        span.style.fontVariationSettings = `'wght' ${currentWeightValue}, 'wdth' ${currentWidthValue}, 'ital' ${currentItalicValue}`;
-        
-        // span을 현재 위치에 삽입
-        range.insertNode(span);
-        
-        // 커서를 삽입된 span 뒤로 이동
-        range.setStartAfter(span);
-        range.setEndAfter(span);
-    }
-    
-    // 커서 위치 확정 (선택 없이)
-    range.collapse(true);
-    selection.removeAllRanges();
-    selection.addRange(range);
-});
-
 // 커스텀 키보드 기능
 let isShiftActive = false;
 
@@ -309,42 +235,18 @@ function insertCharacter(char) {
         currentWidthValue = 5 + ((typingInterval - 100) / 1100) * 80;
     }
     
-    // 커서 위치에 글자 삽입
-    const selection = window.getSelection();
-    if (!selection.rangeCount) return;
-    
-    const range = selection.getRangeAt(0);
-    
+    // span 생성
     const span = document.createElement('span');
     span.textContent = char;
     span.style.fontVariationSettings = `'wght' ${currentWeightValue}, 'wdth' ${currentWidthValue}, 'ital' ${currentItalicValue}`;
     
-    range.deleteContents();
-    range.insertNode(span);
-    
-    // 커서를 삽입된 span 뒤로 이동
-    range.setStartAfter(span);
-    range.setEndAfter(span);
-    range.collapse(true);
-    selection.removeAllRanges();
-    selection.addRange(range);
-    
-    // 포커스 유지
-    textInput.focus();
+    // textInput에 추가
+    textInput.appendChild(span);
 }
 
 function handleBackspace() {
-    const selection = window.getSelection();
-    if (!selection.rangeCount) return;
-    
-    const range = selection.getRangeAt(0);
-    
-    if (range.collapsed) {
-        // 커서만 있을 때 (선택 없음)
-        range.setStart(range.startContainer, Math.max(0, range.startOffset - 1));
-        range.deleteContents();
-    } else {
-        // 선택된 텍스트 삭제
-        range.deleteContents();
+    // 마지막 자식 요소 삭제
+    if (textInput.lastChild) {
+        textInput.removeChild(textInput.lastChild);
     }
 }

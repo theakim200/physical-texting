@@ -153,6 +153,9 @@ body {
     font-family: 'Sensory', sans-serif;
     font-size: 20px;
     line-height: 1.4;
+    word-wrap: break-word;
+    overflow-wrap: break-word;
+    max-width: 100%;
 }
 
 .message.mine .message-bubble {
@@ -185,11 +188,14 @@ body {
     max-height: 100px;
     overflow-y: auto;
     font-family: 'Sensory', sans-serif;
+    font-variation-settings: 'wght' 60, 'wdth' 45, 'ital' 50;
 }
 
 #text-input:empty:before {
     content: attr(data-placeholder);
     color: #999;
+    font-family: 'Sensory', sans-serif;
+    font-variation-settings: 'wght' 60, 'wdth' 45, 'ital' 50;
 }
 
 #send-btn {
