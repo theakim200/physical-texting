@@ -14,6 +14,8 @@ const textInput = document.getElementById('text-input');
 const sendBtn = document.getElementById('send-btn');
 const roomNameEl = document.getElementById('room-name');
 const userCountEl = document.getElementById('user-count');
+const sensorPermissionOverlay = document.getElementById('sensor-permission-overlay');
+const grantSensorButton = document.getElementById('grant-sensor-permission');
 
 // 센서 값 저장
 let currentItalicValue = 50; // 현재 italic 값 저장
@@ -24,6 +26,12 @@ let sensorPermissionGranted = false;
 
 // 방 이름 표시
 roomNameEl.textContent = `Room: ${roomId}`;
+
+// 센서 권한 버튼 클릭
+grantSensorButton.addEventListener('click', async () => {
+    await requestSensorPermission();
+    sensorPermissionOverlay.classList.add('hidden');
+});
 
 // 센서 권한 요청 및 시작
 async function requestSensorPermission() {
@@ -71,9 +79,6 @@ function handleOrientation(event) {
         currentItalicValue = Math.max(40, Math.min(60, italicValue));
     }
 }
-
-// 페이지 로드 시 센서 권한 요청
-requestSensorPermission();
 
 // Firebase 참조
 const roomRef = database.ref(`rooms/${roomId}`);
