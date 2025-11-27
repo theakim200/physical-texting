@@ -217,6 +217,13 @@ body {
     gap: 6px;
 }
 
+#keyboard-alpha,
+#keyboard-numbers {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+
 .keyboard-row {
     display: flex;
     justify-content: center;

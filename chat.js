@@ -252,16 +252,16 @@ function insertCharacter(char) {
         currentWidthValue = 5 + ((typingInterval - 100) / 1100) * 80;
     }
     
-    // 줄바꿈 처리
-    if (char === '\n') {
-        const br = document.createElement('br');
-        textInput.appendChild(br);
-        return;
-    }
-    
     // span 생성
     const span = document.createElement('span');
-    span.textContent = char;
+    
+    // 줄바꿈 처리 - 실제 개행 문자로 표시
+    if (char === '\n') {
+        span.innerHTML = '<br>';
+    } else {
+        span.textContent = char;
+    }
+    
     span.style.fontVariationSettings = `'wght' ${currentWeightValue}, 'wdth' ${currentWidthValue}, 'ital' ${currentItalicValue}`;
     
     // textInput에 추가
