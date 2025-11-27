@@ -158,9 +158,6 @@ function displayStatuses(statuses) {
     if (!statuses) return;
     
     Object.entries(statuses).forEach(([uid, statusData]) => {
-        // 자기 자신의 상태는 표시하지 않음
-        if (uid === userId) return;
-        
         const notification = document.createElement('div');
         notification.className = 'status-notification';
         
@@ -187,21 +184,28 @@ function displayStatuses(statuses) {
 function updateUserStatus(status) {
     if (status === currentStatus) return;
     
+    console.log('=== STATUS UPDATE ===');
+    console.log('Previous status:', currentStatus);
+    console.log('New status:', status);
+    
     currentStatus = status;
     
     if (status) {
+        console.log(`Setting status: ${status} for user: ${userName}`);
         statusesRef.child(userId).set({
             userName: userName,
             status: status,
             timestamp: firebase.database.ServerValue.TIMESTAMP
         });
     } else {
+        console.log('Removing status');
         statusesRef.child(userId).remove();
     }
 }
 
 // 상태 체크 시작
 function startStatusChecking() {
+    console.log('=== STATUS CHECKING STARTED ===');
     statusCheckInterval = setInterval(() => {
         checkUserStatus();
     }, 1000); // 1초마다 체크
@@ -212,6 +216,8 @@ function checkUserStatus() {
     
     // 1. Thinking 체크 (5초 이상 타이핑 안함)
     if (lastInputTime && (now - lastInputTime) > 5000) {
+        const timeSinceLastInput = now - lastInputTime;
+        console.log(`THINKING: ${timeSinceLastInput}ms since last input`);
         updateUserStatus('thinking');
         return;
     }
@@ -219,7 +225,9 @@ function checkUserStatus() {
     // 2. Passionately writing 체크 (최근 5초간 평균 속도 < 200ms)
     if (recentTypingSpeeds.length >= 5) {
         const avgSpeed = recentTypingSpeeds.reduce((a, b) => a + b, 0) / recentTypingSpeeds.length;
+        console.log(`TYPING SPEEDS: ${recentTypingSpeeds.length} recorded, avg: ${avgSpeed.toFixed(0)}ms`);
         if (avgSpeed < 200) {
+            console.log('PASSIONATELY: Average typing speed < 200ms');
             updateUserStatus('passionately');
             return;
         }
@@ -227,11 +235,15 @@ function checkUserStatus() {
     
     // 3. Lying down 체크 (italic 20 이하 or 80 이상)
     if (currentItalicValue <= 20 || currentItalicValue >= 80) {
+        console.log(`LYING: italic value is ${currentItalicValue.toFixed(1)}`);
         updateUserStatus('lying');
         return;
     }
     
     // 조건 없으면 상태 제거
+    if (currentStatus) {
+        console.log('No condition met, clearing status');
+    }
     updateUserStatus(null);
 }
 
@@ -393,6 +405,7 @@ function insertCharacter(char) {
         if (recentTypingSpeeds.length > 10) {
             recentTypingSpeeds.shift();
         }
+        console.log(`Typing speed: ${typingInterval}ms, recent: [${recentTypingSpeeds.map(s => s.toFixed(0)).join(', ')}]`);
     }
     
     // 타자 간격을 width 값으로 변환
