@@ -260,7 +260,15 @@ body {
     color: white;
 }
 
+.key-mode {
+    max-width: 50px;
+}
+
 .key.active {
     background: #007AFF;
     color: white;
+}
+
+.hidden {
+    display: none !important;
 }

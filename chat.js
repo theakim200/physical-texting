@@ -167,6 +167,10 @@ sendBtn.addEventListener('click', sendMessage);
 
 // 커스텀 키보드 기능
 let isShiftActive = false;
+let currentKeyboardMode = 'alpha'; // 'alpha' or 'numbers'
+
+const keyboardAlpha = document.getElementById('keyboard-alpha');
+const keyboardNumbers = document.getElementById('keyboard-numbers');
 
 // 모든 키에 터치 이벤트 추가
 document.querySelectorAll('.key').forEach(key => {
@@ -178,6 +182,19 @@ function handleKeyTouch(event) {
     
     const touch = event.touches[0];
     const keyValue = event.target.dataset.key;
+    
+    // 모드 전환 키 처리
+    if (keyValue === 'mode123') {
+        keyboardAlpha.classList.add('hidden');
+        keyboardNumbers.classList.remove('hidden');
+        currentKeyboardMode = 'numbers';
+        return;
+    } else if (keyValue === 'modeABC') {
+        keyboardNumbers.classList.add('hidden');
+        keyboardAlpha.classList.remove('hidden');
+        currentKeyboardMode = 'alpha';
+        return;
+    }
     
     // 터치 면적으로 압력 측정
     const radiusX = touch.radiusX || 25;
@@ -197,14 +214,14 @@ function handleKeyTouch(event) {
     if (keyValue === 'backspace') {
         handleBackspace();
     } else if (keyValue === 'enter') {
-        sendMessage();
+        insertCharacter('\n');
     } else if (keyValue === 'shift') {
         isShiftActive = !isShiftActive;
         event.target.classList.toggle('active', isShiftActive);
     } else if (keyValue === 'space') {
         insertCharacter(' ');
     } else {
-        const char = isShiftActive ? keyValue.toUpperCase() : keyValue;
+        const char = (isShiftActive && currentKeyboardMode === 'alpha') ? keyValue.toUpperCase() : keyValue;
         insertCharacter(char);
         if (isShiftActive) {
             isShiftActive = false;
@@ -233,6 +250,13 @@ function insertCharacter(char) {
         currentWidthValue = 85;
     } else {
         currentWidthValue = 5 + ((typingInterval - 100) / 1100) * 80;
+    }
+    
+    // 줄바꿈 처리
+    if (char === '\n') {
+        const br = document.createElement('br');
+        textInput.appendChild(br);
+        return;
     }
     
     // span 생성
