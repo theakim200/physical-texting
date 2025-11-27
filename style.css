@@ -223,6 +223,9 @@ body {
     overflow-y: auto;
     font-family: 'Sensory', sans-serif;
     font-variation-settings: 'wght' 60, 'wdth' 45, 'ital' 50;
+    white-space: pre-wrap;
+    word-wrap: break-word;
+    overflow-wrap: break-word;
 }
 
 #text-input:empty:before {
