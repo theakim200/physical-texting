@@ -245,6 +245,49 @@ body {
     cursor: pointer;
 }
 
+/* 상태 알림 영역 */
+#status-notifications {
+    background: white;
+    border-top: 1px solid #ddd;
+    padding: 8px 12px;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    min-height: 0;
+}
+
+#status-notifications:empty {
+    display: none;
+}
+
+.status-notification {
+    background: rgba(142, 142, 147, 0.12);
+    backdrop-filter: blur(20px);
+    padding: 10px 16px;
+    border-radius: 18px;
+    font-size: 14px;
+    color: #3c3c43;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    animation: slideIn 0.3s ease;
+}
+
+@keyframes slideIn {
+    from {
+        opacity: 0;
+        transform: translateY(10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.status-notification .icon {
+    font-size: 16px;
+}
+
 /* 커스텀 키보드 */
 #custom-keyboard {
     background: #d1d5db;

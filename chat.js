@@ -25,6 +25,7 @@ const debugSpeed = document.getElementById('debug-speed');
 const debugWidth = document.getElementById('debug-width');
 const debugRadius = document.getElementById('debug-radius');
 const debugWeight = document.getElementById('debug-weight');
+const statusNotifications = document.getElementById('status-notifications');
 
 // 센서 값 저장
 let currentItalicValue = 50; // 현재 italic 값 저장
@@ -36,6 +37,11 @@ let sensorPermissionGranted = false;
 let currentGamma = 0;
 let currentBeta = 0;
 let currentRadius = 0;
+
+// 상태 추적
+let currentStatus = null; // 현재 유저 상태
+let statusCheckInterval = null;
+let recentTypingSpeeds = []; // 최근 타이핑 속도 기록 (5초치)
 
 // 방 이름 표시
 roomNameEl.textContent = `Room: ${roomId}`;
@@ -119,6 +125,7 @@ function handleOrientation(event) {
 const roomRef = database.ref(`rooms/${roomId}`);
 const messagesRef = roomRef.child('messages');
 const usersRef = roomRef.child('users');
+const statusesRef = roomRef.child('statuses');
 
 // 고유 사용자 ID 생성
 const userId = `user_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
@@ -138,6 +145,106 @@ usersRef.on('value', (snapshot) => {
     const count = snapshot.numChildren();
     userCountEl.textContent = `${count} online`;
 });
+
+// 상태 변경 리스너
+statusesRef.on('value', (snapshot) => {
+    displayStatuses(snapshot.val());
+});
+
+// 상태 표시 함수
+function displayStatuses(statuses) {
+    statusNotifications.innerHTML = '';
+    
+    if (!statuses) return;
+    
+    Object.entries(statuses).forEach(([uid, statusData]) => {
+        // 자기 자신의 상태는 표시하지 않음
+        if (uid === userId) return;
+        
+        const notification = document.createElement('div');
+        notification.className = 'status-notification';
+        
+        let icon = '';
+        let message = '';
+        
+        if (statusData.status === 'thinking') {
+            icon = '💭';
+            message = `${statusData.userName} is thinking for a long time`;
+        } else if (statusData.status === 'passionately') {
+            icon = '🔥';
+            message = `${statusData.userName} is passionately writing`;
+        } else if (statusData.status === 'lying') {
+            icon = '🛌';
+            message = `${statusData.userName} is lying down`;
+        }
+        
+        notification.innerHTML = `<span class="icon">${icon}</span><span>${message}</span>`;
+        statusNotifications.appendChild(notification);
+    });
+}
+
+// 상태 업데이트 함수
+function updateUserStatus(status) {
+    if (status === currentStatus) return;
+    
+    currentStatus = status;
+    
+    if (status) {
+        statusesRef.child(userId).set({
+            userName: userName,
+            status: status,
+            timestamp: firebase.database.ServerValue.TIMESTAMP
+        });
+    } else {
+        statusesRef.child(userId).remove();
+    }
+}
+
+// 상태 체크 시작
+function startStatusChecking() {
+    statusCheckInterval = setInterval(() => {
+        checkUserStatus();
+    }, 1000); // 1초마다 체크
+}
+
+function checkUserStatus() {
+    const now = Date.now();
+    
+    // 1. Thinking 체크 (5초 이상 타이핑 안함)
+    if (lastInputTime && (now - lastInputTime) > 5000) {
+        updateUserStatus('thinking');
+        return;
+    }
+    
+    // 2. Passionately writing 체크 (최근 5초간 평균 속도 < 200ms)
+    if (recentTypingSpeeds.length >= 5) {
+        const avgSpeed = recentTypingSpeeds.reduce((a, b) => a + b, 0) / recentTypingSpeeds.length;
+        if (avgSpeed < 200) {
+            updateUserStatus('passionately');
+            return;
+        }
+    }
+    
+    // 3. Lying down 체크 (italic 20 이하 or 80 이상)
+    if (currentItalicValue <= 20 || currentItalicValue >= 80) {
+        updateUserStatus('lying');
+        return;
+    }
+    
+    // 조건 없으면 상태 제거
+    updateUserStatus(null);
+}
+
+// 페이지 떠날 때 상태 정리
+window.addEventListener('beforeunload', () => {
+    if (statusCheckInterval) {
+        clearInterval(statusCheckInterval);
+    }
+    statusesRef.child(userId).remove();
+});
+
+// 상태 체크 시작
+startStatusChecking();
 
 // 기존 메시지 로드 + 실시간 수신
 messagesRef.orderByChild('timestamp').on('child_added', (snapshot) => {
@@ -279,6 +386,14 @@ function insertCharacter(char) {
     
     lastInputTime = currentTime;
     currentTypingSpeed = typingInterval;
+    
+    // 최근 타이핑 속도 기록 (최대 10개, 약 5초치)
+    if (typingInterval > 0 && typingInterval < 2000) {
+        recentTypingSpeeds.push(typingInterval);
+        if (recentTypingSpeeds.length > 10) {
+            recentTypingSpeeds.shift();
+        }
+    }
     
     // 타자 간격을 width 값으로 변환
     if (typingInterval === 0) {
