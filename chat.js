@@ -140,6 +140,10 @@ userRef.set({
 // 사용자가 나가면 삭제
 userRef.onDisconnect().remove();
 
+// 상태도 나가면 삭제
+const userStatusRef = statusesRef.child(userId);
+userStatusRef.onDisconnect().remove();
+
 // 온라인 사용자 수 추적
 usersRef.on('value', (snapshot) => {
     const count = snapshot.numChildren();
