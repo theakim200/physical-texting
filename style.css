@@ -255,13 +255,10 @@ body {
     align-items: flex-end;
 }
 
-#input-wrapper {
+#text-input {
     background: #FFFFFF;
     border: 1px solid #C5C5C7;
     border-radius: 18px;
-}
-
-#text-input {
     flex: 1;
     padding: 8px 12px;
     font-size: 17px;
