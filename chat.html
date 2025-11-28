@@ -16,9 +16,8 @@
             </div>
         </div>
 
-        <!-- 메시지 영역 -->
-        <div id="messages-container">
-            <!-- 헤더 -->
+        <!-- 헤더 -->
+        <div id="chat-wrapper">
             <div id="chat-header">
                 <img src="assets/header.png" alt="header" id="header-icon">
                 <div id="header-content">
@@ -26,8 +25,10 @@
                     <span id="user-count">0 online</span>
                 </div>
             </div>
-            
-            <!-- 메시지들이 여기에 추가됨 -->
+            <!-- 메시지 영역 -->
+            <div id="messages-container">            
+                <!-- 메시지들이 여기에 추가됨 -->
+            </div>
         </div>
 
         <!-- 상태 알림 영역 -->
@@ -37,10 +38,12 @@
 
         <!-- 입력 영역 -->
         <div id="input-container">
-            <div id="text-input" contenteditable="false" data-placeholder="Type a message"></div>
-            <button id="send-btn">
-                <img src="assets/send_arrow.svg" alt="send">
-            </button>
+            <div id="input-wrapper">
+                <div id="text-input" contenteditable="false" data-placeholder="Type a message"></div>
+                <button id="send-btn">
+                    <img src="assets/send_arrow.svg" alt="send">
+                </button>
+            </div>
         </div>
 
         <!-- 커스텀 키보드 -->

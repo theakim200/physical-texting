@@ -140,13 +140,14 @@ body {
     padding: 16px;
     display: flex;
     flex-direction: column;
-    gap: 16px;
+    gap: 10px;
     background: #FFFFFF;
 }
 
 /* 메시지 */
 .message {
     display: flex;
+    align-items: end;
     gap: 8px;
     max-width: 85%;
 }
@@ -203,7 +204,7 @@ body {
 }
 
 .message-bubble {
-    padding: 7px 12px;
+    padding: 6px 12px 4px 12px;
     border-radius: 20px;
     font-family: 'Sensory', sans-serif;
     font-size: 20px;
@@ -254,12 +255,16 @@ body {
     align-items: flex-end;
 }
 
+#input-wrapper {
+    background: #FFFFFF;
+    border: 1px solid #C5C5C7;
+    border-radius: 18px;
+}
+
 #text-input {
     flex: 1;
     padding: 8px 12px;
     font-size: 17px;
-    border: 1px solid #E5E5EA;
-    border-radius: 20px;
     outline: none;
     min-height: 36px;
     max-height: 100px;
@@ -269,7 +274,6 @@ body {
     white-space: pre-wrap;
     word-wrap: break-word;
     overflow-wrap: break-word;
-    background: #F2F2F7;
 }
 
 #text-input:empty:before {
@@ -300,9 +304,8 @@ body {
 
 /* 상태 알림 영역 */
 #status-notifications {
-    background: #FFFFFF;
-    border-top: 1px solid #E5E5EA;
-    padding: 8px 12px;
+    background: none;
+    padding: 0px;
     display: flex;
     flex-direction: column;
     gap: 6px;
@@ -314,15 +317,14 @@ body {
 }
 
 .status-notification {
-    background: rgba(142, 142, 147, 0.12);
-    backdrop-filter: blur(20px);
-    padding: 8px 12px;
-    border-radius: 16px;
+    background: none;
+    padding: 0px 12px 10px 12px;
     font-size: 13px;
     color: #3C3C43;
     display: flex;
     align-items: center;
-    gap: 8px;
+    justify-content: center;
+    gap: 4px;
     animation: slideIn 0.3s ease;
 }
 
