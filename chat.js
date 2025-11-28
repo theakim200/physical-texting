@@ -16,15 +16,6 @@ const roomNameEl = document.getElementById('room-name');
 const userCountEl = document.getElementById('user-count');
 const sensorPermissionOverlay = document.getElementById('sensor-permission-overlay');
 const grantSensorButton = document.getElementById('grant-sensor-permission');
-const debugToggle = document.getElementById('debug-toggle');
-const debugPanel = document.getElementById('debug-panel');
-const debugGamma = document.getElementById('debug-gamma');
-const debugBeta = document.getElementById('debug-beta');
-const debugItalic = document.getElementById('debug-italic');
-const debugSpeed = document.getElementById('debug-speed');
-const debugWidth = document.getElementById('debug-width');
-const debugRadius = document.getElementById('debug-radius');
-const debugWeight = document.getElementById('debug-weight');
 const statusNotifications = document.getElementById('status-notifications');
 
 // 센서 값 저장
@@ -43,26 +34,11 @@ let currentStatus = null; // 현재 유저 상태
 let statusCheckInterval = null;
 let recentTypingSpeeds = []; // 최근 타이핑 속도 기록 (5초치)
 
-// 방 이름 표시
-roomNameEl.textContent = `Room: ${roomId}`;
-
-// 디버그 패널 토글
-debugToggle.addEventListener('click', () => {
-    debugPanel.classList.toggle('hidden');
-});
-
-// 디버그 정보 업데이트 함수
-function updateDebugInfo() {
-    debugGamma.textContent = `${currentGamma.toFixed(1)}°`;
-    debugBeta.textContent = `${currentBeta.toFixed(1)}°`;
-    debugItalic.textContent = currentItalicValue.toFixed(1);
-    debugSpeed.textContent = `${currentTypingSpeed}ms`;
-    debugWidth.textContent = currentWidthValue.toFixed(1);
-    debugRadius.textContent = `${currentRadius.toFixed(1)}px`;
-    debugWeight.textContent = currentWeightValue.toFixed(1);
-}
-
 // 센서 권한 버튼 클릭
+grantSensorButton.addEventListener('click', async () => {
+    await requestSensorPermission();
+    sensorPermissionOverlay.classList.add('hidden');
+});
 grantSensorButton.addEventListener('click', async () => {
     await requestSensorPermission();
     sensorPermissionOverlay.classList.add('hidden');
@@ -115,9 +91,6 @@ function handleOrientation(event) {
         
         // 범위 제한
         currentItalicValue = Math.max(40, Math.min(60, italicValue));
-        
-        // 디버그 정보 업데이트
-        updateDebugInfo();
     }
 }
 
@@ -165,21 +138,24 @@ function displayStatuses(statuses) {
         const notification = document.createElement('div');
         notification.className = 'status-notification';
         
-        let icon = '';
+        let iconSrc = '';
         let message = '';
         
         if (statusData.status === 'thinking') {
-            icon = '💭';
+            iconSrc = 'assets/time.svg';
             message = `${statusData.userName} is thinking for a long time`;
         } else if (statusData.status === 'passionately') {
-            icon = '🔥';
+            iconSrc = 'assets/passionate.svg';
             message = `${statusData.userName} is passionately writing`;
         } else if (statusData.status === 'lying') {
-            icon = '🛌';
+            iconSrc = 'assets/lying.svg';
             message = `${statusData.userName} is lying down`;
         }
         
-        notification.innerHTML = `<span class="icon">${icon}</span><span>${message}</span>`;
+        notification.innerHTML = `
+            <span class="icon"><img src="${iconSrc}" alt="${statusData.status}"></span>
+            <span>${message}</span>
+        `;
         statusNotifications.appendChild(notification);
     });
 }
@@ -188,28 +164,21 @@ function displayStatuses(statuses) {
 function updateUserStatus(status) {
     if (status === currentStatus) return;
     
-    console.log('=== STATUS UPDATE ===');
-    console.log('Previous status:', currentStatus);
-    console.log('New status:', status);
-    
     currentStatus = status;
     
     if (status) {
-        console.log(`Setting status: ${status} for user: ${userName}`);
         statusesRef.child(userId).set({
             userName: userName,
             status: status,
             timestamp: firebase.database.ServerValue.TIMESTAMP
         });
     } else {
-        console.log('Removing status');
         statusesRef.child(userId).remove();
     }
 }
 
 // 상태 체크 시작
 function startStatusChecking() {
-    console.log('=== STATUS CHECKING STARTED ===');
     statusCheckInterval = setInterval(() => {
         checkUserStatus();
     }, 1000); // 1초마다 체크
@@ -220,8 +189,6 @@ function checkUserStatus() {
     
     // 1. Thinking 체크 (5초 이상 타이핑 안함)
     if (lastInputTime && (now - lastInputTime) > 5000) {
-        const timeSinceLastInput = now - lastInputTime;
-        console.log(`THINKING: ${timeSinceLastInput}ms since last input`);
         updateUserStatus('thinking');
         return;
     }
@@ -229,9 +196,7 @@ function checkUserStatus() {
     // 2. Passionately writing 체크 (최근 5초간 평균 속도 < 200ms)
     if (recentTypingSpeeds.length >= 5) {
         const avgSpeed = recentTypingSpeeds.reduce((a, b) => a + b, 0) / recentTypingSpeeds.length;
-        console.log(`TYPING SPEEDS: ${recentTypingSpeeds.length} recorded, avg: ${avgSpeed.toFixed(0)}ms`);
         if (avgSpeed < 200) {
-            console.log('PASSIONATELY: Average typing speed < 200ms');
             updateUserStatus('passionately');
             return;
         }
@@ -239,15 +204,11 @@ function checkUserStatus() {
     
     // 3. Lying down 체크 (italic 20 이하 or 80 이상)
     if (currentItalicValue <= 20 || currentItalicValue >= 80) {
-        console.log(`LYING: italic value is ${currentItalicValue.toFixed(1)}`);
         updateUserStatus('lying');
         return;
     }
     
     // 조건 없으면 상태 제거
-    if (currentStatus) {
-        console.log('No condition met, clearing status');
-    }
     updateUserStatus(null);
 }
 
@@ -281,18 +242,49 @@ function displayMessage(message) {
         messageEl.classList.add('others');
     }
     
+    // 프로필 이미지
+    const profileEl = document.createElement('img');
+    profileEl.className = 'message-profile';
+    profileEl.src = 'assets/profile.jpg';
+    profileEl.alt = message.userName;
+    
+    // 메시지 콘텐츠 래퍼
+    const contentEl = document.createElement('div');
+    contentEl.className = 'message-content';
+    
     // 보낸 사람 이름
     const nameEl = document.createElement('div');
     nameEl.className = 'message-name';
     nameEl.textContent = message.userName;
+    
+    // 메시지 버블 + 꼬리 래퍼
+    const bubbleWrapperEl = document.createElement('div');
+    bubbleWrapperEl.className = 'message-bubble-wrapper';
     
     // 메시지 버블
     const bubbleEl = document.createElement('div');
     bubbleEl.className = 'message-bubble';
     bubbleEl.innerHTML = message.content; // HTML 포함 (span 태그)
     
-    messageEl.appendChild(nameEl);
-    messageEl.appendChild(bubbleEl);
+    // 꼬리
+    const tailEl = document.createElement('img');
+    tailEl.className = 'message-tail';
+    if (message.userId === userId) {
+        tailEl.src = 'assets/tail_right.svg';
+    } else {
+        tailEl.src = 'assets/tail_left.svg';
+    }
+    
+    // 조립
+    bubbleWrapperEl.appendChild(bubbleEl);
+    bubbleWrapperEl.appendChild(tailEl);
+    
+    contentEl.appendChild(nameEl);
+    contentEl.appendChild(bubbleWrapperEl);
+    
+    messageEl.appendChild(profileEl);
+    messageEl.appendChild(contentEl);
+    
     messagesContainer.appendChild(messageEl);
 }
 
@@ -368,9 +360,6 @@ function handleKeyTouch(event) {
         currentWeightValue = 60 + ((avgRadius - 20) / 30) * 90;
     }
     
-    // 디버그 정보 업데이트
-    updateDebugInfo();
-    
     // 키 처리
     if (keyValue === 'backspace') {
         handleBackspace();
@@ -409,7 +398,6 @@ function insertCharacter(char) {
         if (recentTypingSpeeds.length > 10) {
             recentTypingSpeeds.shift();
         }
-        console.log(`Typing speed: ${typingInterval}ms, recent: [${recentTypingSpeeds.map(s => s.toFixed(0)).join(', ')}]`);
     }
     
     // 타자 간격을 width 값으로 변환
@@ -422,9 +410,6 @@ function insertCharacter(char) {
     } else {
         currentWidthValue = 5 + ((typingInterval - 100) / 1100) * 80;
     }
-    
-    // 디버그 정보 업데이트
-    updateDebugInfo();
     
     // span 생성
     const span = document.createElement('span');

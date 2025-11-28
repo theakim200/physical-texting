@@ -11,7 +11,7 @@
 
 body {
     font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-    background: #f5f5f5;
+    background: #FFFFFF;
     height: 100vh;
     overflow: hidden;
 }
@@ -55,6 +55,7 @@ body {
     display: flex;
     flex-direction: column;
     height: 100vh;
+    background: #FFFFFF;
 }
 
 /* 센서 권한 오버레이 */
@@ -97,54 +98,34 @@ body {
 /* 헤더 */
 #chat-header {
     display: flex;
-    justify-content: space-between;
     align-items: center;
-    padding: 16px;
-    background: white;
-    border-bottom: 1px solid #ddd;
+    padding: 12px 16px;
+    background: #FFFFFF;
+    border-bottom: 1px solid #E5E5EA;
     gap: 12px;
 }
 
-#room-name {
-    font-weight: bold;
+#header-icon {
+    width: 32px;
+    height: 32px;
+}
+
+#header-content {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
     flex: 1;
 }
 
-#debug-toggle {
-    background: none;
-    border: none;
-    font-size: 20px;
-    cursor: pointer;
-    padding: 4px 8px;
+#room-name {
+    font-size: 16px;
+    font-weight: 600;
+    color: #000000;
 }
 
 #user-count {
-    color: #888;
-    font-size: 14px;
-}
-
-/* 디버그 패널 */
-#debug-panel {
-    background: #f9fafb;
-    border-bottom: 1px solid #ddd;
-    padding: 12px 16px;
     font-size: 12px;
-    font-family: monospace;
-}
-
-.debug-row {
-    display: flex;
-    justify-content: space-between;
-    padding: 2px 0;
-}
-
-.debug-row span:first-child {
-    color: #666;
-}
-
-.debug-row span:last-child {
-    font-weight: bold;
-    color: #007AFF;
+    color: #8E8E93;
 }
 
 /* 메시지 영역 */
@@ -154,31 +135,60 @@ body {
     padding: 16px;
     display: flex;
     flex-direction: column;
-    gap: 12px;
+    gap: 16px;
+    background: #FFFFFF;
 }
 
 /* 메시지 */
 .message {
     display: flex;
-    flex-direction: column;
-    max-width: 75%;
+    gap: 8px;
+    max-width: 85%;
 }
 
 .message.mine {
     align-self: flex-end;
-    align-items: flex-end;
+    flex-direction: row-reverse;
 }
 
 .message.others {
     align-self: flex-start;
+}
+
+.message-profile {
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    flex-shrink: 0;
+}
+
+.message-content {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.message.mine .message-content {
+    align-items: flex-end;
+}
+
+.message.others .message-content {
     align-items: flex-start;
 }
 
 .message-name {
-    font-size: 12px;
-    color: #888;
-    margin-bottom: 4px;
-    padding: 0 8px;
+    font-size: 11px;
+    color: #8E8E93;
+    padding: 0 12px;
+}
+
+.message-bubble-wrapper {
+    display: flex;
+    align-items: flex-end;
+}
+
+.message.mine .message-bubble-wrapper {
+    flex-direction: row-reverse;
 }
 
 .message-bubble {
@@ -190,35 +200,54 @@ body {
     word-wrap: break-word;
     overflow-wrap: break-word;
     max-width: 100%;
+    position: relative;
 }
 
 .message.mine .message-bubble {
     background: #007AFF;
     color: white;
+    border-bottom-right-radius: 4px;
 }
 
 .message.others .message-bubble {
     background: #E5E5EA;
     color: black;
+    border-bottom-left-radius: 4px;
+}
+
+.message-tail {
+    width: 20px;
+    height: 20px;
+    margin-bottom: 0;
+    flex-shrink: 0;
+}
+
+.message.mine .message-tail {
+    margin-left: -8px;
+}
+
+.message.others .message-tail {
+    margin-right: -8px;
 }
 
 /* 입력 영역 */
 #input-container {
     display: flex;
     gap: 8px;
-    padding: 12px;
-    background: white;
-    border-top: 1px solid #ddd;
+    padding: 8px 12px;
+    background: #FFFFFF;
+    border-top: 1px solid #E5E5EA;
+    align-items: flex-end;
 }
 
 #text-input {
     flex: 1;
-    padding: 10px 14px;
-    font-size: 16px;
-    border: 1px solid #ccc;
+    padding: 8px 12px;
+    font-size: 17px;
+    border: 1px solid #E5E5EA;
     border-radius: 20px;
     outline: none;
-    min-height: 40px;
+    min-height: 36px;
     max-height: 100px;
     overflow-y: auto;
     font-family: 'Sensory', sans-serif;
@@ -226,29 +255,39 @@ body {
     white-space: pre-wrap;
     word-wrap: break-word;
     overflow-wrap: break-word;
+    background: #F2F2F7;
 }
 
 #text-input:empty:before {
     content: attr(data-placeholder);
-    color: #999;
+    color: #8E8E93;
     font-family: 'Sensory', sans-serif;
     font-variation-settings: 'wght' 60, 'wdth' 45, 'ital' 50;
 }
 
 #send-btn {
-    padding: 10px 20px;
+    width: 36px;
+    height: 36px;
     background: #007AFF;
-    color: white;
     border: none;
-    border-radius: 20px;
-    font-size: 16px;
+    border-radius: 50%;
     cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    padding: 0;
+}
+
+#send-btn img {
+    width: 20px;
+    height: 20px;
 }
 
 /* 상태 알림 영역 */
 #status-notifications {
-    background: white;
-    border-top: 1px solid #ddd;
+    background: #FFFFFF;
+    border-top: 1px solid #E5E5EA;
     padding: 8px 12px;
     display: flex;
     flex-direction: column;
@@ -263,10 +302,10 @@ body {
 .status-notification {
     background: rgba(142, 142, 147, 0.12);
     backdrop-filter: blur(20px);
-    padding: 10px 16px;
-    border-radius: 18px;
-    font-size: 14px;
-    color: #3c3c43;
+    padding: 8px 12px;
+    border-radius: 16px;
+    font-size: 13px;
+    color: #3C3C43;
     display: flex;
     align-items: center;
     gap: 8px;
@@ -285,75 +324,93 @@ body {
 }
 
 .status-notification .icon {
-    font-size: 16px;
+    width: 16px;
+    height: 16px;
+    flex-shrink: 0;
+}
+
+.status-notification .icon img {
+    width: 100%;
+    height: 100%;
 }
 
 /* 커스텀 키보드 */
 #custom-keyboard {
-    background: #d1d5db;
-    padding: 8px;
+    background: #D1D4DB;
+    padding: 8px 4px 4px 4px;
     display: flex;
     flex-direction: column;
-    gap: 6px;
+    gap: 8px;
 }
 
 #keyboard-alpha,
 #keyboard-numbers {
     display: flex;
     flex-direction: column;
-    gap: 6px;
+    gap: 8px;
 }
 
 .keyboard-row {
     display: flex;
     justify-content: center;
-    gap: 4px;
+    gap: 6px;
+    padding: 0 4px;
 }
 
 .key {
     flex: 1;
     max-width: 36px;
     height: 42px;
-    background: white;
+    background: #FFFFFF;
     border: none;
     border-radius: 5px;
-    font-size: 18px;
+    font-size: 22px;
     cursor: pointer;
     user-select: none;
     display: flex;
     align-items: center;
     justify-content: center;
-    box-shadow: 0 1px 0 rgba(0, 0, 0, 0.1);
+    box-shadow: 0 1px 0 rgba(0, 0, 0, 0.05);
+    color: #000000;
+    font-weight: 400;
 }
 
 .key:active {
-    background: #e5e5ea;
-    transform: scale(0.95);
+    background: #D1D4DB;
+    transform: scale(0.97);
 }
 
 .key-shift,
 .key-backspace {
-    max-width: 50px;
+    max-width: 46px;
+    background: #AEB3BB;
+    color: #000000;
+    font-size: 20px;
 }
 
 .key-space {
-    flex: 3;
-    max-width: 200px;
+    flex: 4;
+    max-width: none;
+    font-size: 16px;
 }
 
 .key-enter {
-    max-width: 60px;
+    max-width: 88px;
     background: #007AFF;
     color: white;
+    font-size: 20px;
 }
 
 .key-mode {
-    max-width: 50px;
+    max-width: 46px;
+    background: #AEB3BB;
+    color: #000000;
+    font-size: 15px;
 }
 
 .key.active {
-    background: #007AFF;
-    color: white;
+    background: #FFFFFF;
+    color: #007AFF;
 }
 
 .hidden {

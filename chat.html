@@ -18,40 +18,10 @@
 
         <!-- 헤더 -->
         <div id="chat-header">
-            <span id="room-name">Chat Room</span>
-            <button id="debug-toggle">📊</button>
-            <span id="user-count">0 online</span>
-        </div>
-
-        <!-- 디버그 패널 -->
-        <div id="debug-panel" class="hidden">
-            <div class="debug-row">
-                <span>gamma:</span>
-                <span id="debug-gamma">0°</span>
-            </div>
-            <div class="debug-row">
-                <span>beta:</span>
-                <span id="debug-beta">0°</span>
-            </div>
-            <div class="debug-row">
-                <span>italic:</span>
-                <span id="debug-italic">50</span>
-            </div>
-            <div class="debug-row">
-                <span>speed:</span>
-                <span id="debug-speed">0ms</span>
-            </div>
-            <div class="debug-row">
-                <span>width:</span>
-                <span id="debug-width">45</span>
-            </div>
-            <div class="debug-row">
-                <span>radius:</span>
-                <span id="debug-radius">0px</span>
-            </div>
-            <div class="debug-row">
-                <span>weight:</span>
-                <span id="debug-weight">60</span>
+            <img src="assets/header.png" alt="header" id="header-icon">
+            <div id="header-content">
+                <span id="room-name">Physical Texting</span>
+                <span id="user-count">0 online</span>
             </div>
         </div>
 
@@ -63,7 +33,9 @@
         <!-- 입력 영역 -->
         <div id="input-container">
             <div id="text-input" contenteditable="false" data-placeholder="Type a message"></div>
-            <button id="send-btn">Send</button>
+            <button id="send-btn">
+                <img src="assets/send_arrow.svg" alt="send">
+            </button>
         </div>
 
         <!-- 상태 알림 영역 -->
