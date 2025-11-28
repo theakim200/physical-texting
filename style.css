@@ -257,7 +257,7 @@ body {
 /* 상태 알림 영역 */
 #status-notifications {
     background: none;
-    padding: 0px;
+    padding-bottom: 10px;
     display: flex;
     flex-direction: column;
     gap: 6px;
@@ -271,7 +271,7 @@ body {
 
 .status-notification {
     background: none;
-    padding: 0px 12px 10px 12px;
+    padding: 0px;
     font-size: 13px;
     color: #3C3C43;
     display: flex;
@@ -320,15 +320,15 @@ body {
     background: #FFFFFF;
     border: 1px solid #C5C5C7;
     border-radius: 18px;
-    padding: 4px 4px 4px 12px;
+    padding: 6px 6px 6px 12px;
 }
 
 #text-input {
     background: transparent;
     border: none;
     flex: 1;
-    padding: 4px 0px;
-    font-size: 17px;
+    padding: 0px;
+    font-size: 21px;
     outline: none;
     min-height: 28px;
     max-height: 100px;
@@ -348,8 +348,8 @@ body {
 }
 
 #send-btn {
-    width: 36px;
-    height: 36px;
+    width: 26px;
+    height: 26px;
     background: #007AFF;
     border: none;
     border-radius: 50%;
@@ -362,8 +362,8 @@ body {
 }
 
 #send-btn img {
-    width: 36px;
-    height: 36px;
+    width: 26px;
+    height: 26px;
 }
 
 /* 커스텀 키보드 */
