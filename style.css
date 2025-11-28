@@ -10,7 +10,7 @@
 }
 
 body {
-    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    font-family: -apple-system, BlinkMacSystemFont, 'SF Pro', 'Segoe UI', Roboto, sans-serif;
     background: #FFFFFF;
     height: 100vh;
     overflow: hidden;
@@ -185,9 +185,14 @@ body {
 .message-bubble-wrapper {
     display: flex;
     align-items: flex-end;
+    max-width: 100%;
 }
 
 .message.mine .message-bubble-wrapper {
+    flex-direction: row;
+}
+
+.message.others .message-bubble-wrapper {
     flex-direction: row-reverse;
 }
 
@@ -199,7 +204,8 @@ body {
     line-height: 1.4;
     word-wrap: break-word;
     overflow-wrap: break-word;
-    max-width: 100%;
+    word-break: break-word;
+    max-width: 260px;
     position: relative;
 }
 
@@ -216,18 +222,20 @@ body {
 }
 
 .message-tail {
-    width: 20px;
+    width: 12px;
     height: 20px;
-    margin-bottom: 0;
+    margin-bottom: 0px;
     flex-shrink: 0;
 }
 
 .message.mine .message-tail {
-    margin-left: -8px;
+    margin-left: -1px;
+    order: 2;
 }
 
 .message.others .message-tail {
-    margin-right: -8px;
+    margin-right: -1px;
+    order: 2;
 }
 
 /* 입력 영역 */
@@ -280,8 +288,8 @@ body {
 }
 
 #send-btn img {
-    width: 20px;
-    height: 20px;
+    width: 36px;
+    height: 36px;
 }
 
 /* 상태 알림 영역 */
@@ -337,7 +345,7 @@ body {
 /* 커스텀 키보드 */
 #custom-keyboard {
     background: #D1D4DB;
-    padding: 8px 4px 4px 4px;
+    padding: 8px 4px 34px 4px;
     display: flex;
     flex-direction: column;
     gap: 8px;
@@ -370,7 +378,7 @@ body {
     display: flex;
     align-items: center;
     justify-content: center;
-    box-shadow: 0 1px 0 rgba(0, 0, 0, 0.05);
+    box-shadow: 0 1px 0 0 rgba(0, 0, 0, 0.35);
     color: #000000;
     font-weight: 400;
 }
@@ -398,7 +406,7 @@ body {
     max-width: 88px;
     background: #007AFF;
     color: white;
-    font-size: 20px;
+    font-size: 16px;
 }
 
 .key-mode {

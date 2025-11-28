@@ -275,7 +275,7 @@ function displayMessage(message) {
         tailEl.src = 'assets/tail_left.svg';
     }
     
-    // 조립
+    // 조립: 버블을 먼저, tail을 나중에 (order로 위치 조정)
     bubbleWrapperEl.appendChild(bubbleEl);
     bubbleWrapperEl.appendChild(tailEl);
     
