@@ -14,6 +14,7 @@ const textInput = document.getElementById('text-input');
 const sendBtn = document.getElementById('send-btn');
 const roomNameEl = document.getElementById('room-name');
 const userCountEl = document.getElementById('user-count');
+const headerIconEl = document.getElementById('header-icon');
 const sensorPermissionOverlay = document.getElementById('sensor-permission-overlay');
 const grantSensorButton = document.getElementById('grant-sensor-permission');
 const statusNotifications = document.getElementById('status-notifications');
@@ -110,69 +111,53 @@ userRef.set({
     joinedAt: firebase.database.ServerValue.TIMESTAMP
 });
 
-console.log('=== USER JOINED ===');
-console.log('userId:', userId);
-console.log('userName:', userName);
-
 // 사용자가 나가면 삭제
 userRef.onDisconnect().remove();
-console.log('onDisconnect().remove() set for user:', userId);
 
 // 상태도 나가면 삭제
 const userStatusRef = statusesRef.child(userId);
 userStatusRef.onDisconnect().remove();
-console.log('onDisconnect().remove() set for status:', userId);
 
 // 온라인 사용자 수 추적
 usersRef.on('value', (snapshot) => {
     const count = snapshot.numChildren();
-    console.log('=== USERS UPDATED ===');
-    console.log('Online users count:', count);
-    console.log('User IDs:', Object.keys(snapshot.val() || {}));
     userCountEl.textContent = `${count} online`;
+    
+    // 온라인 인원수에 따라 헤더 아이콘 변경
+    if (count === 1) {
+        headerIconEl.src = 'assets/1online.png';
+    } else if (count === 2) {
+        headerIconEl.src = 'assets/2online.png';
+    } else if (count === 3) {
+        headerIconEl.src = 'assets/3online.png';
+    } else if (count === 4) {
+        headerIconEl.src = 'assets/4online.png';
+    } else if (count === 5) {
+        headerIconEl.src = 'assets/5online.png';
+    } else if (count >= 6) {
+        headerIconEl.src = 'assets/6ormore.png';
+    }
 });
 
 // 사용자가 나가면 해당 사용자의 상태도 제거
 usersRef.on('child_removed', (snapshot) => {
     const removedUserId = snapshot.key;
-    const removedUserName = snapshot.val()?.name || 'unknown';
-    console.log('=== USER REMOVED (child_removed) ===');
-    console.log('Removed userId:', removedUserId);
-    console.log('Removed userName:', removedUserName);
-    console.log('Removing status for userId:', removedUserId);
     statusesRef.child(removedUserId).remove();
 });
 
 // 상태 변경 리스너
 statusesRef.on('value', (snapshot) => {
-    console.log('=== STATUSES UPDATED ===');
-    const statusData = snapshot.val();
-    console.log('Active statuses:', statusData);
-    if (statusData) {
-        console.log('Status user IDs:', Object.keys(statusData));
-    }
-    displayStatuses(statusData);
-    scrollToBottom(); // 상태 업데이트 시 스크롤
+    displayStatuses(snapshot.val());
+    scrollToBottom();
 });
 
 // 상태 표시 함수
 function displayStatuses(statuses) {
-    console.log('=== displayStatuses called ===');
-    console.log('statuses:', statuses);
-    
     statusNotifications.innerHTML = '';
     
-    if (!statuses) {
-        console.log('No statuses to display');
-        return;
-    }
-    
-    const statusCount = Object.keys(statuses).length;
-    console.log('Displaying', statusCount, 'status notifications');
+    if (!statuses) return;
     
     Object.entries(statuses).forEach(([uid, statusData]) => {
-        console.log('Status:', uid, statusData);
-        
         const notification = document.createElement('div');
         notification.className = 'status-notification';
         
@@ -270,19 +255,14 @@ messagesRef.orderByChild('timestamp').on('child_added', (snapshot) => {
 
 // 메시지 표시 함수
 function displayMessage(message) {
-    console.log('=== displayMessage called ===');
-    console.log('message:', message);
-    
     const messageEl = document.createElement('div');
     messageEl.className = 'message';
     
     // 내 메시지인지 확인
     if (message.userId === userId) {
         messageEl.classList.add('mine');
-        console.log('This is my message');
     } else {
         messageEl.classList.add('others');
-        console.log('This is others message');
     }
     
     // 프로필 이미지
@@ -332,21 +312,13 @@ function displayMessage(message) {
     const statusNotifications = document.getElementById('status-notifications');
     messagesContainer.insertBefore(messageEl, statusNotifications);
     
-    console.log('Message displayed, calling scrollToBottom');
     scrollToBottom();
 }
 
 // 자동 스크롤
 function scrollToBottom() {
-    console.log('=== SCROLL TO BOTTOM CALLED ===');
-    console.log('messagesContainer scrollHeight:', messagesContainer.scrollHeight);
-    console.log('messagesContainer scrollTop (before):', messagesContainer.scrollTop);
-    console.log('messagesContainer clientHeight:', messagesContainer.clientHeight);
-    
-    // DOM 업데이트 대기 후 스크롤
     setTimeout(() => {
         messagesContainer.scrollTop = messagesContainer.scrollHeight;
-        console.log('messagesContainer scrollTop (after):', messagesContainer.scrollTop);
     }, 50);
 }
 
