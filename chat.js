@@ -123,6 +123,12 @@ usersRef.on('value', (snapshot) => {
     userCountEl.textContent = `${count} online`;
 });
 
+// 사용자가 나가면 해당 사용자의 상태도 제거
+usersRef.on('child_removed', (snapshot) => {
+    const removedUserId = snapshot.key;
+    statusesRef.child(removedUserId).remove();
+});
+
 // 상태 변경 리스너
 statusesRef.on('value', (snapshot) => {
     displayStatuses(snapshot.val());
@@ -285,7 +291,9 @@ function displayMessage(message) {
     messageEl.appendChild(profileEl);
     messageEl.appendChild(contentEl);
     
-    messagesContainer.appendChild(messageEl);
+    // status-notifications 앞에 메시지 삽입
+    const statusNotifications = document.getElementById('status-notifications');
+    messagesContainer.insertBefore(messageEl, statusNotifications);
 }
 
 // 자동 스크롤
