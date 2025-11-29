@@ -111,19 +111,19 @@ body {
     display: flex;
     flex-direction: column;
     align-items: center;
-    padding: 10px 0px;
-    border-bottom: 0.5px solid var(#C5C5C7);
+    padding: 6px 0px;
+    border-bottom: 0.5px solid #C5C5C7;
     background: rgba(241, 241, 242, 0.83);
     backdrop-filter: blur(9px);
     gap: 4px;
-    position: sticky;
+    /* position: sticky; */
     top: 0;
     z-index: 10;
 }
 
 #header-icon {
     width: auto;
-    height: 4dvh;
+    height: 4.5dvh;
 }
 
 #header-content {
@@ -148,7 +148,7 @@ body {
 #messages-container {
     flex: 1;
     overflow-y: auto;
-    padding: 70px 16px 16px 16px;
+    padding: 80px 16px 16px 16px;
     display: flex;
     flex-direction: column;
     gap: 10px;
