@@ -36,7 +36,6 @@ let statusCheckInterval = null;
 let recentTypingSpeeds = []; // { speed: number, timestamp: number }[] 형태로 변경
 let passionateStartTime = null; // passionate 상태 시작 시간
 let lyingStartTime = null; // lying 상태 시작 시간
-let fastStartTime = null; // fast 상태 시작 시간
 
 // 센서 권한 버튼 클릭
 grantSensorButton.addEventListener('click', async () => {
@@ -245,38 +244,17 @@ function checkUserStatus() {
         statuses.push('thinking');
     }
     
-    // 3. Fast 체크 (3초 이상 빠르게 타이핑)
+    // 3. Fast 체크 (최근 3초간 평균 속도 < 200ms)
     const threeSecondsAgo = now - 3000;
     const recentSpeeds = recentTypingSpeeds.filter(
         item => item.timestamp > threeSecondsAgo
     );
     
-    // 최근 3초 안에 3번 이상 타이핑하고, 평균 속도 < 200ms
     if (recentSpeeds.length >= 3) {
         const avgSpeed = recentSpeeds.reduce((sum, item) => sum + item.speed, 0) / recentSpeeds.length;
-        
         if (avgSpeed < 200) {
-            // Fast 조건 충족 - 타이머 시작
-            if (!fastStartTime) {
-                fastStartTime = now;
-            }
-            
-            // 3초 이상 유지되면 Fast 활성화
-            if (now - fastStartTime >= 3000) {
-                statuses.push('fast');
-            }
-        } else {
-            // 평균 속도가 느려지면 리셋
-            fastStartTime = null;
+            statuses.push('fast');
         }
-    } else {
-        // 타이핑 기록 부족하면 리셋
-        fastStartTime = null;
-    }
-    
-    // 타이핑을 멈추면 (3초 이상 경과) fast 리셋
-    if (lastInputTime && (now - lastInputTime) > 3000) {
-        fastStartTime = null;
     }
     
     // 4. Lying down 체크 (italic 45 이하 or 55 이상, 5초 유지)
