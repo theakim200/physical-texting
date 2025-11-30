@@ -1,11 +1,10 @@
 // URL에서 파라미터 가져오기
 const urlParams = new URLSearchParams(window.location.search);
-const roomId = urlParams.get('room') || 'default';
 const userName = urlParams.get('name') || 'Anonymous';
 
 // 이름 없으면 입장 화면으로 리다이렉트
 if (!urlParams.get('name')) {
-    window.location.href = `index.html?room=${roomId}`;
+    window.location.href = 'entry.html';
 }
 
 // DOM 요소
@@ -15,8 +14,6 @@ const sendBtn = document.getElementById('send-btn');
 const roomNameEl = document.getElementById('room-name');
 const userCountEl = document.getElementById('user-count');
 const headerIconEl = document.getElementById('header-icon');
-const sensorPermissionOverlay = document.getElementById('sensor-permission-overlay');
-const grantSensorButton = document.getElementById('grant-sensor-permission');
 const statusNotifications = document.getElementById('status-notifications');
 
 // 센서 값 저장
@@ -25,7 +22,6 @@ let currentWidthValue = 45; // 현재 width 값 저장 (기본 45)
 let currentWeightValue = 60; // 현재 weight 값 저장 (기본 60)
 let lastInputTime = null; // 이전 입력 시간
 let currentTypingSpeed = 0; // 현재 타자 속도 (ms)
-let sensorPermissionGranted = false;
 let currentGamma = 0;
 let currentBeta = 0;
 let currentRadius = 0;
@@ -37,39 +33,17 @@ let recentTypingSpeeds = []; // { speed: number, timestamp: number }[] 형태로
 let passionateStartTime = null; // passionate 상태 시작 시간
 let lyingStartTime = null; // lying 상태 시작 시간
 
-// 센서 권한 버튼 클릭
-grantSensorButton.addEventListener('click', async () => {
-    await requestSensorPermission();
-    sensorPermissionOverlay.classList.add('hidden');
-});
-grantSensorButton.addEventListener('click', async () => {
-    await requestSensorPermission();
-    sensorPermissionOverlay.classList.add('hidden');
-});
-
-// 센서 권한 요청 및 시작
-async function requestSensorPermission() {
-    if (typeof DeviceOrientationEvent.requestPermission === 'function') {
-        try {
-            const permission = await DeviceOrientationEvent.requestPermission();
-            if (permission === 'granted') {
-                startOrientationTracking();
-                sensorPermissionGranted = true;
-            }
-        } catch (error) {
-            console.error('Permission error:', error);
-        }
-    } else {
-        // Android 또는 iOS 12 이하
-        startOrientationTracking();
-        sensorPermissionGranted = true;
-    }
-}
-
+// 센서 권한은 이미 entry.html에서 요청했으므로 바로 시작
+    console.log('Protocol:', window.location.protocol);
+    console.log('DeviceOrientationEvent exists:', typeof DeviceOrientationEvent !== 'undefined');
+// 센서 권한은 이미 entry.html에서 요청했으므로 바로 시작
 // 방향 센서 추적 시작
 function startOrientationTracking() {
     window.addEventListener('deviceorientation', handleOrientation);
 }
+
+// 페이지 로드 시 센서 추적 시작
+startOrientationTracking();
 
 // 방향 센서 처리
 function handleOrientation(event) {
@@ -97,8 +71,8 @@ function handleOrientation(event) {
     }
 }
 
-// Firebase 참조
-const roomRef = database.ref(`rooms/${roomId}`);
+// Firebase 참조 (고정된 단일 방)
+const roomRef = database.ref('rooms/default');
 const messagesRef = roomRef.child('messages');
 const usersRef = roomRef.child('users');
 const statusesRef = roomRef.child('statuses');
