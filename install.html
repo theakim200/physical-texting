@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Em:body Typing - Install</title>
+    
+    <!-- PWA Manifest -->
+    <link rel="manifest" href="manifest.json">
+    
+    <!-- iOS PWA Support -->
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="Em:body">
+    <link rel="apple-touch-icon" href="assets/icons/icon-512.png">
+    
+    <!-- Theme Color -->
+    <meta name="theme-color" content="#000000">
+    
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'SF Pro', 'Segoe UI', Roboto, sans-serif;
+            background: #F2F2F7;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .install-card {
+            background: #FFFFFF;
+            border-radius: 20px;
+            padding: 32px;
+            max-width: 400px;
+            width: 100%;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+            text-align: center;
+        }
+
+        .app-icon {
+            width: 80px;
+            height: 80px;
+            border-radius: 18px;
+            margin: 0 auto 24px;
+        }
+
+        h1 {
+            font-size: 24px;
+            font-weight: 700;
+            color: #000000;
+            margin-bottom: 8px;
+        }
+
+        .subtitle {
+            font-size: 16px;
+            font-weight: 400;
+            color: #000000;
+            margin-bottom: 24px;
+        }
+
+        .instruction {
+            font-size: 14px;
+            font-weight: 400;
+            color: #8E8E93;
+            line-height: 1.5;
+            margin-bottom: 24px;
+        }
+
+        .safari-menu {
+            width: 100%;
+            max-width: 280px;
+            border-radius: 12px;
+            margin: 0 auto 16px;
+            display: block;
+        }
+
+        .tip {
+            font-size: 12px;
+            color: #8E8E93;
+            font-weight: 400;
+        }
+    </style>
+</head>
+<body>
+    <div class="install-card">
+        <img src="assets/icons/icon-512.png" alt="Em:body Typing" class="app-icon">
+        <h1>Em:body Typing</h1>
+        <p class="subtitle">Add 'Em:body Typing' to your Home Screen</p>
+        <p class="instruction">In Safari, tap <strong>Share</strong> → <strong>Add to Home Screen</strong></p>
+        <img src="assets/instruction.png" alt="Safari menu" class="safari-menu">
+        <p class="tip">For the best experience, install this app on your home screen</p>
+    </div>
+
+    <script>
+        // PWA 모드 감지
+        if (window.navigator.standalone === true) {
+            // 이미 PWA로 실행 중 → index.html로 리다이렉트
+            window.location.href = 'index.html';
+        }
+        
+        // 또는 display-mode 체크
+        const isStandalone = window.matchMedia('(display-mode: standalone)').matches;
+        if (isStandalone) {
+            window.location.href = 'index.html';
+        }
+    </script>
+</body>
+</html>
