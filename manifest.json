@@ -2,7 +2,7 @@
   "name": "Em:body Typing",
   "short_name": "Em:body",
   "description": "A sensory variable font chat experience",
-  "start_url": "install.html",
+  "start_url": "index.html",
   "display": "standalone",
   "background_color": "#FFFFFF",
   "theme_color": "#000000",

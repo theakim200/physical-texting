@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="ko">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
@@ -17,35 +17,215 @@
     <!-- Theme Color -->
     <meta name="theme-color" content="#000000">
     
-    <link rel="stylesheet" href="style.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'SF Pro', 'Segoe UI', Roboto, sans-serif;
+            background: #F2F2F7;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .entry-card {
+            background: #FFFFFF;
+            border-radius: 20px;
+            padding: 32px;
+            max-width: 400px;
+            width: 100%;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+        }
+
+        h1 {
+            font-size: 24px;
+            font-weight: 700;
+            color: #000000;
+            text-align: center;
+            margin-bottom: 24px;
+        }
+
+        .profile-icon {
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            margin: 0 auto 24px;
+            display: block;
+        }
+
+        .input-group {
+            margin-bottom: 32px;
+        }
+
+        label {
+            display: block;
+            font-size: 14px;
+            font-weight: 500;
+            color: #000000;
+            margin-bottom: 8px;
+        }
+
+        #name-input {
+            width: 100%;
+            padding: 12px 16px;
+            font-size: 16px;
+            border: 1px solid #D1D1D6;
+            border-radius: 10px;
+            outline: none;
+            font-family: -apple-system, BlinkMacSystemFont, 'SF Pro', sans-serif;
+        }
+
+        #name-input:focus {
+            border-color: #007AFF;
+        }
+
+        .about-section {
+            background: #F9F9F9;
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 24px;
+        }
+
+        .about-header {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 12px;
+        }
+
+        .about-icon {
+            width: 32px;
+            height: 32px;
+        }
+
+        .about-title {
+            font-size: 16px;
+            font-weight: 600;
+            color: #000000;
+        }
+
+        .about-text {
+            font-size: 14px;
+            line-height: 1.6;
+            color: #3C3C43;
+            margin-bottom: 12px;
+        }
+
+        .about-link {
+            font-size: 14px;
+            color: #007AFF;
+            text-decoration: none;
+        }
+
+        .about-link:hover {
+            text-decoration: underline;
+        }
+
+        #join-btn {
+            width: 100%;
+            padding: 14px;
+            background: #007AFF;
+            color: white;
+            border: none;
+            border-radius: 10px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            font-family: -apple-system, BlinkMacSystemFont, 'SF Pro', sans-serif;
+        }
+
+        #join-btn:active {
+            background: #0051D5;
+        }
+
+        #join-btn:disabled {
+            background: #C7C7CC;
+            cursor: not-allowed;
+        }
+
+        .error-message {
+            color: #FF3B30;
+            font-size: 14px;
+            text-align: center;
+            margin-top: 12px;
+            display: none;
+        }
+    </style>
 </head>
 <body>
-    <div id="entry-screen">
-        <h1>Sensory Chat</h1>
-        <input type="text" id="name-input" placeholder="Enter your name" maxlength="20">
+    <div class="entry-card">
+        <h1>Em:body Typing</h1>
+        
+        <img src="assets/profile.jpg" alt="Profile" class="profile-icon">
+        
+        <div class="input-group">
+            <label for="name-input">Name</label>
+            <input type="text" id="name-input" placeholder="Enter your name" maxlength="20">
+        </div>
+
+        <div class="about-section">
+            <div class="about-header">
+                <img src="assets/icons/icon-512.png" alt="Em:body" class="about-icon">
+                <span class="about-title">About</span>
+            </div>
+            <p class="about-text">
+                Em:body Typing is an experimental chat application that transforms your physical typing into visual expression through a variable font.
+            </p>
+            <p class="about-text">
+                Your typing speed, pressure, and device tilt all affect how your message appears to others.
+            </p>
+            <a href="#" class="about-link">Learn more or download Kinetic Sans here</a>
+        </div>
+
         <button id="join-btn">Join Chat</button>
+        <p class="error-message" id="error-message"></p>
     </div>
 
     <script>
         const nameInput = document.getElementById('name-input');
         const joinBtn = document.getElementById('join-btn');
+        const errorMessage = document.getElementById('error-message');
 
-        // URL에서 room 파라미터 가져오기 (없으면 기본 방)
-        const urlParams = new URLSearchParams(window.location.search);
-        const roomId = urlParams.get('room') || 'default';
-
-        joinBtn.addEventListener('click', () => {
-            const name = nameInput.value.trim();
-            if (name) {
-                // 채팅방으로 이동
-                window.location.href = `chat.html?room=${roomId}&name=${encodeURIComponent(name)}`;
-            }
-        });
-
-        // 엔터키로도 입장 가능
         nameInput.addEventListener('keypress', (e) => {
             if (e.key === 'Enter') {
                 joinBtn.click();
+            }
+        });
+
+        joinBtn.addEventListener('click', async () => {
+            const name = nameInput.value.trim();
+            
+            if (!name) {
+                errorMessage.textContent = 'Please enter your name';
+                errorMessage.style.display = 'block';
+                return;
+            }
+
+            // 센서 권한 요청 (iOS)
+            if (typeof DeviceOrientationEvent !== 'undefined' && 
+                typeof DeviceOrientationEvent.requestPermission === 'function') {
+                try {
+                    const permission = await DeviceOrientationEvent.requestPermission();
+                    
+                    if (permission === 'granted') {
+                        window.location.href = `chat.html?name=${encodeURIComponent(name)}`;
+                    } else {
+                        errorMessage.textContent = 'Sensor permission is required to use this app';
+                        errorMessage.style.display = 'block';
+                    }
+                } catch (error) {
+                    console.error('Sensor permission error:', error);
+                    errorMessage.textContent = 'Sensor permission error';
+                    errorMessage.style.display = 'block';
+                }
+            } else {
+                window.location.href = `chat.html?name=${encodeURIComponent(name)}`;
             }
         });
     </script>

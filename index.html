@@ -101,14 +101,14 @@
     <script>
         // PWA 모드 감지
         if (window.navigator.standalone === true) {
-            // 이미 PWA로 실행 중 → index.html로 리다이렉트
-            window.location.href = 'index.html';
+            // 이미 PWA로 실행 중 → entry.html로 리다이렉트
+            window.location.href = 'entry.html';
         }
         
         // 또는 display-mode 체크
         const isStandalone = window.matchMedia('(display-mode: standalone)').matches;
         if (isStandalone) {
-            window.location.href = 'index.html';
+            window.location.href = 'entry.html';
         }
     </script>
 </body>
