@@ -245,7 +245,7 @@ function checkUserStatus() {
         statuses.push('thinking');
     }
     
-    // 3. Fast 체크 (5초 이상 빠르게 타이핑)
+    // 3. Fast 체크 (3초 이상 빠르게 타이핑)
     const threeSecondsAgo = now - 3000;
     const recentSpeeds = recentTypingSpeeds.filter(
         item => item.timestamp > threeSecondsAgo
@@ -261,8 +261,8 @@ function checkUserStatus() {
                 fastStartTime = now;
             }
             
-            // 5초 이상 유지되면 Fast 활성화
-            if (now - fastStartTime >= 5000) {
+            // 3초 이상 유지되면 Fast 활성화
+            if (now - fastStartTime >= 3000) {
                 statuses.push('fast');
             }
         } else {
