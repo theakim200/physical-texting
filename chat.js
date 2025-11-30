@@ -370,6 +370,10 @@ sendBtn.addEventListener('click', sendMessage);
 let isShiftActive = false;
 let currentKeyboardMode = 'alpha'; // 'alpha' or 'numbers'
 
+// 멀티터치 처리
+let isProcessingTouch = false;
+let accumulatedRadius = [];
+
 const keyboardAlpha = document.getElementById('keyboard-alpha');
 const keyboardNumbers = document.getElementById('keyboard-numbers');
 
@@ -381,10 +385,9 @@ document.querySelectorAll('.key').forEach(key => {
 function handleKeyTouch(event) {
     event.preventDefault();
     
-    const touch = event.touches[0];
-    const keyValue = event.target.dataset.key;
+    const keyValue = event.currentTarget.dataset.key;
     
-    // 모드 전환 키 처리
+    // 모드 전환 키 처리 (즉시 처리)
     if (keyValue === 'mode123') {
         keyboardAlpha.classList.add('hidden');
         keyboardNumbers.classList.remove('hidden');
@@ -397,47 +400,68 @@ function handleKeyTouch(event) {
         return;
     }
     
-    // 터치 면적으로 압력 측정
-    const radiusX = touch.radiusX || 25;
-    const radiusY = touch.radiusY || 25;
-    const avgRadius = (radiusX + radiusY) / 2;
-    currentRadius = avgRadius;
-    
-    // radius를 weight로 매핑 (20px → 60, 50px → 150)
-    if (avgRadius < 20) {
-        currentWeightValue = 60;
-    } else if (avgRadius > 50) {
-        currentWeightValue = 150;
-    } else {
-        currentWeightValue = 60 + ((avgRadius - 20) / 30) * 90;
-    }
-    
-    // Passionate 상태 추적 (35px 이상 3초 유지)
-    if (avgRadius >= 35) {
-        if (!passionateStartTime) {
-            passionateStartTime = Date.now();
-        }
-    } else {
-        passionateStartTime = null;
-    }
-    
-    // 키 처리
-    if (keyValue === 'backspace') {
-        handleBackspace();
-    } else if (keyValue === 'enter') {
-        insertCharacter('\n');
-    } else if (keyValue === 'shift') {
+    // Shift 키 처리 (즉시 처리)
+    if (keyValue === 'shift') {
         isShiftActive = !isShiftActive;
-        event.target.classList.toggle('active', isShiftActive);
-    } else if (keyValue === 'space') {
-        insertCharacter(' ');
-    } else {
-        const char = (isShiftActive && currentKeyboardMode === 'alpha') ? keyValue.toUpperCase() : keyValue;
-        insertCharacter(char);
-        if (isShiftActive) {
-            isShiftActive = false;
-            document.querySelector('.key-shift').classList.remove('active');
+        event.currentTarget.classList.toggle('active', isShiftActive);
+        return;
+    }
+    
+    // 모든 터치의 radius 수집
+    for (let i = 0; i < event.touches.length; i++) {
+        const touch = event.touches[i];
+        const radiusX = touch.radiusX || 25;
+        const radiusY = touch.radiusY || 25;
+        accumulatedRadius.push((radiusX + radiusY) / 2);
+    }
+    
+    // 첫 번째 키만 처리 (동시 터치 시 하나만 입력)
+    if (!isProcessingTouch) {
+        isProcessingTouch = true;
+        
+        // 모든 터치의 평균 radius 계산 (넓게 터치할수록 큰 값)
+        const avgRadius = accumulatedRadius.reduce((a, b) => a + b, 0) / accumulatedRadius.length;
+        currentRadius = avgRadius;
+        
+        // radius를 weight로 매핑 (20px → 60, 50px → 150)
+        if (avgRadius < 20) {
+            currentWeightValue = 60;
+        } else if (avgRadius > 50) {
+            currentWeightValue = 150;
+        } else {
+            currentWeightValue = 60 + ((avgRadius - 20) / 30) * 90;
         }
+        
+        // Passionate 상태 추적 (35px 이상 3초 유지)
+        if (avgRadius >= 35) {
+            if (!passionateStartTime) {
+                passionateStartTime = Date.now();
+            }
+        } else {
+            passionateStartTime = null;
+        }
+        
+        // 키 처리
+        if (keyValue === 'backspace') {
+            handleBackspace();
+        } else if (keyValue === 'enter') {
+            insertCharacter('\n');
+        } else if (keyValue === 'space') {
+            insertCharacter(' ');
+        } else {
+            const char = (isShiftActive && currentKeyboardMode === 'alpha') ? keyValue.toUpperCase() : keyValue;
+            insertCharacter(char);
+            if (isShiftActive) {
+                isShiftActive = false;
+                document.querySelector('.key-shift').classList.remove('active');
+            }
+        }
+        
+        // 리셋 (100ms 후)
+        setTimeout(() => {
+            isProcessingTouch = false;
+            accumulatedRadius = [];
+        }, 100);
     }
 }
 
