@@ -277,14 +277,14 @@ body {
     background: none;
     padding: 0px;
     font-size: 14px;
-    font-weight: 500;
+    font-weight: 400;
+    padding-top: 5px;
     color: #3C3C43;
     display: flex;
     align-items: center;
     justify-content: center;
     gap: 4px;
     animation: slideIn 0.3s ease;
-    padding-top: 5px;
 }
 
 @keyframes slideIn {

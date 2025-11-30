@@ -244,10 +244,10 @@ function checkUserStatus() {
         statuses.push('thinking');
     }
     
-    // 3. Fast 체크 (최근 5초간 평균 속도 < 200ms)
-    const fiveSecondsAgo = now - 5000;
+    // 3. Fast 체크 (최근 3초간 평균 속도 < 200ms)
+    const threeSecondsAgo = now - 3000;
     const recentSpeeds = recentTypingSpeeds.filter(
-        item => item.timestamp > fiveSecondsAgo
+        item => item.timestamp > threeSecondsAgo
     );
     
     if (recentSpeeds.length >= 3) {
@@ -270,7 +270,13 @@ function checkUserStatus() {
         lyingStartTime = null;
     }
     
-    // 5. Passionate 체크 (radius 35px 이상 3초 유지)
+    // 5. Passionate 체크 (radius 35px 이상 3초 유지 + 계속 타이핑 중)
+    // 타이핑을 멈추면 (2초 이상 경과) passionate 리셋
+    if (lastInputTime && (now - lastInputTime) > 2000) {
+        passionateStartTime = null;
+    }
+    
+    // radius가 35px 이상이고, 3초 유지되었으면 passionate
     if (passionateStartTime && (now - passionateStartTime) >= 3000) {
         statuses.push('passionate');
     }
