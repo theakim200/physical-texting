@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Em:body Typing</title>
+    
+    <!-- PWA Manifest -->
+    <link rel="manifest" href="manifest.json">
+    
+    <!-- iOS PWA Support -->
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="Em:body">
+    <link rel="apple-touch-icon" href="assets/icons/icon-512.png">
+    
+    <!-- Theme Color -->
+    <meta name="theme-color" content="#000000">
+    
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div id="entry-screen">
+        <h1>Sensory Chat</h1>
+        <input type="text" id="name-input" placeholder="Enter your name" maxlength="20">
+        <button id="join-btn">Join Chat</button>
+    </div>
+
+    <script>
+        const nameInput = document.getElementById('name-input');
+        const joinBtn = document.getElementById('join-btn');
+
+        // URL에서 room 파라미터 가져오기 (없으면 기본 방)
+        const urlParams = new URLSearchParams(window.location.search);
+        const roomId = urlParams.get('room') || 'default';
+
+        joinBtn.addEventListener('click', () => {
+            const name = nameInput.value.trim();
+            if (name) {
+                // 채팅방으로 이동
+                window.location.href = `chat.html?room=${roomId}&name=${encodeURIComponent(name)}`;
+            }
+        });
+
+        // 엔터키로도 입장 가능
+        nameInput.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') {
+                joinBtn.click();
+            }
+        });
+    </script>
+</body>
+</html>
