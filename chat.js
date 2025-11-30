@@ -31,9 +31,11 @@ let currentBeta = 0;
 let currentRadius = 0;
 
 // 상태 추적
-let currentStatus = null; // 현재 유저 상태
+let currentStatuses = []; // 현재 유저 상태들 (배열로 변경)
 let statusCheckInterval = null;
-let recentTypingSpeeds = []; // 최근 타이핑 속도 기록 (5초치)
+let recentTypingSpeeds = []; // { speed: number, timestamp: number }[] 형태로 변경
+let passionateStartTime = null; // passionate 상태 시작 시간
+let lyingStartTime = null; // lying 상태 시작 시간
 
 // 센서 권한 버튼 클릭
 grantSensorButton.addEventListener('click', async () => {
@@ -152,47 +154,69 @@ statusesRef.on('value', (snapshot) => {
 });
 
 // 상태 표시 함수
-function displayStatuses(statuses) {
+function displayStatuses(statusesData) {
     statusNotifications.innerHTML = '';
     
-    if (!statuses) return;
+    if (!statusesData) return;
     
-    Object.entries(statuses).forEach(([uid, statusData]) => {
-        const notification = document.createElement('div');
-        notification.className = 'status-notification';
+    // 각 유저별로 처리
+    Object.entries(statusesData).forEach(([uid, userData]) => {
+        const userStatuses = userData.statuses || [];
         
-        let iconSrc = '';
-        let message = '';
-        
-        if (statusData.status === 'thinking') {
-            iconSrc = 'assets/time.svg';
-            message = `${statusData.userName} is thinking for a long time`;
-        } else if (statusData.status === 'passionately') {
-            iconSrc = 'assets/passionate.svg';
-            message = `${statusData.userName} is passionately writing`;
-        } else if (statusData.status === 'lying') {
-            iconSrc = 'assets/lying.svg';
-            message = `${statusData.userName} is lying down`;
-        }
-        
-        notification.innerHTML = `
-            <span class="icon"><img src="${iconSrc}" alt="${statusData.status}"></span>
-            <span>${message}</span>
-        `;
-        statusNotifications.appendChild(notification);
+        // 각 상태를 별도 줄로 표시
+        userStatuses.forEach(status => {
+            const notification = document.createElement('div');
+            notification.className = 'status-notification';
+            
+            let iconSrc = '';
+            let message = '';
+            let color = '';
+            
+            if (status === 'gone') {
+                iconSrc = 'assets/gone.svg';
+                message = `${userData.userName} might be away right now`;
+                color = '#FF9500';
+            } else if (status === 'thinking') {
+                iconSrc = 'assets/time.svg';
+                message = `${userData.userName} is thinking for a long time`;
+                color = '#5AC8FA';
+            } else if (status === 'fast') {
+                iconSrc = 'assets/fast.svg';
+                message = `${userData.userName} is talking fast`;
+                color = '#FFCC00';
+            } else if (status === 'lying') {
+                iconSrc = 'assets/lying.svg';
+                message = `${userData.userName} is lying down`;
+                color = '#5856D6';
+            } else if (status === 'passionate') {
+                iconSrc = 'assets/passionate.svg';
+                message = `${userData.userName} is passionately typing`;
+                color = '#FF2D55';
+            }
+            
+            notification.innerHTML = `
+                <span class="icon"><img src="${iconSrc}" alt="${status}"></span>
+                <span style="color: ${color}">${message}</span>
+            `;
+            statusNotifications.appendChild(notification);
+        });
     });
 }
 
 // 상태 업데이트 함수
-function updateUserStatus(status) {
-    if (status === currentStatus) return;
+function updateUserStatus(statuses) {
+    // 배열 비교 (순서 무관)
+    const isSame = statuses.length === currentStatuses.length &&
+                   statuses.every(s => currentStatuses.includes(s));
     
-    currentStatus = status;
+    if (isSame) return;
     
-    if (status) {
+    currentStatuses = statuses;
+    
+    if (statuses.length > 0) {
         statusesRef.child(userId).set({
             userName: userName,
-            status: status,
+            statuses: statuses,
             timestamp: firebase.database.ServerValue.TIMESTAMP
         });
     } else {
@@ -209,30 +233,49 @@ function startStatusChecking() {
 
 function checkUserStatus() {
     const now = Date.now();
+    const statuses = [];
     
-    // 1. Thinking 체크 (5초 이상 타이핑 안함)
-    if (lastInputTime && (now - lastInputTime) > 5000) {
-        updateUserStatus('thinking');
-        return;
+    // 1. Gone 체크 (10초 이상 타이핑 안함)
+    if (lastInputTime && (now - lastInputTime) > 10000) {
+        statuses.push('gone');
+    }
+    // 2. Thinking 체크 (5초 이상 ~ 10초 미만 타이핑 안함)
+    else if (lastInputTime && (now - lastInputTime) > 5000 && (now - lastInputTime) <= 10000) {
+        statuses.push('thinking');
     }
     
-    // 2. Passionately writing 체크 (최근 5초간 평균 속도 < 200ms)
-    if (recentTypingSpeeds.length >= 5) {
-        const avgSpeed = recentTypingSpeeds.reduce((a, b) => a + b, 0) / recentTypingSpeeds.length;
+    // 3. Fast 체크 (최근 5초간 평균 속도 < 200ms)
+    const fiveSecondsAgo = now - 5000;
+    const recentSpeeds = recentTypingSpeeds.filter(
+        item => item.timestamp > fiveSecondsAgo
+    );
+    
+    if (recentSpeeds.length >= 3) {
+        const avgSpeed = recentSpeeds.reduce((sum, item) => sum + item.speed, 0) / recentSpeeds.length;
         if (avgSpeed < 200) {
-            updateUserStatus('passionately');
-            return;
+            statuses.push('fast');
         }
     }
     
-    // 3. Lying down 체크 (italic 20 이하 or 80 이상)
-    if (currentItalicValue <= 20 || currentItalicValue >= 80) {
-        updateUserStatus('lying');
-        return;
+    // 4. Lying down 체크 (italic 45 이하 or 55 이상, 5초 유지)
+    if (currentItalicValue <= 45 || currentItalicValue >= 55) {
+        if (!lyingStartTime) {
+            lyingStartTime = now;
+        }
+        
+        if (now - lyingStartTime >= 5000) {
+            statuses.push('lying');
+        }
+    } else {
+        lyingStartTime = null;
     }
     
-    // 조건 없으면 상태 제거
-    updateUserStatus(null);
+    // 5. Passionate 체크 (radius 35px 이상 3초 유지)
+    if (passionateStartTime && (now - passionateStartTime) >= 3000) {
+        statuses.push('passionate');
+    }
+    
+    updateUserStatus(statuses);
 }
 
 // 페이지 떠날 때 상태 정리
@@ -389,6 +432,15 @@ function handleKeyTouch(event) {
         currentWeightValue = 60 + ((avgRadius - 20) / 30) * 90;
     }
     
+    // Passionate 상태 추적 (35px 이상 3초 유지)
+    if (avgRadius >= 35) {
+        if (!passionateStartTime) {
+            passionateStartTime = Date.now();
+        }
+    } else {
+        passionateStartTime = null;
+    }
+    
     // 키 처리
     if (keyValue === 'backspace') {
         handleBackspace();
@@ -421,12 +473,18 @@ function insertCharacter(char) {
     lastInputTime = currentTime;
     currentTypingSpeed = typingInterval;
     
-    // 최근 타이핑 속도 기록 (최대 10개, 약 5초치)
+    // 최근 타이핑 속도 기록 (timestamp 포함)
     if (typingInterval > 0 && typingInterval < 2000) {
-        recentTypingSpeeds.push(typingInterval);
-        if (recentTypingSpeeds.length > 10) {
-            recentTypingSpeeds.shift();
-        }
+        recentTypingSpeeds.push({
+            speed: typingInterval,
+            timestamp: currentTime
+        });
+        
+        // 10초 이상 된 기록 제거
+        const tenSecondsAgo = currentTime - 10000;
+        recentTypingSpeeds = recentTypingSpeeds.filter(
+            item => item.timestamp > tenSecondsAgo
+        );
     }
     
     // 타자 간격을 width 값으로 변환
